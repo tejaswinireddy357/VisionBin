@@ -46,3 +46,16 @@ streamlit run app.py
 ```
 
 ## 📂 Project Structure
+```
+VisionBin/
+├── app.py                  # Main Streamlit dashboard
+├── requirements.txt        # Python dependencies
+├── .gitignore              # Git ignore rules
+├── .devcontainer/          # Dev container configuration
+│   └── devcontainer.json
+├── src/
+│   ├── classifier.py       # Groq Vision AI + fallback classifier
+│   ├── detector.py         # Detection overlay drawing
+│   └── logger.py           # Scan history + statistics
+└── README.md
+```
