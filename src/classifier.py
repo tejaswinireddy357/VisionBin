@@ -2,10 +2,18 @@ import cv2
 import numpy as np
 import base64
 import os
+import json
+import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
+
+def get_api_key():
+    try:
+        return st.secrets["GROQ_API_KEY"]
+    except:
+        return os.getenv("GROQ_API_KEY")
 
 WASTE_CATEGORIES = {
     "Plastic": {
@@ -43,9 +51,8 @@ WASTE_CATEGORIES = {
 def classify_waste(frame):
     """Use Groq vision AI to classify waste."""
     try:
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        client = Groq(api_key=get_api_key())
 
-        # Convert frame to base64
         _, buffer = cv2.imencode('.jpg', frame)
         image_b64 = base64.b64encode(buffer).decode('utf-8')
 
@@ -71,9 +78,7 @@ def classify_waste(frame):
             max_tokens=50
         )
 
-        import json
         text = response.choices[0].message.content.strip()
-        # Clean up response in case it has extra text
         text = text[text.find('{'):text.rfind('}')+1]
         parsed = json.loads(text)
         waste_type = parsed.get("type", "Organic")
@@ -89,7 +94,6 @@ def classify_waste(frame):
         return fallback_classify(frame)
 
 def fallback_classify(frame):
-    """Simple fallback if AI unavailable."""
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mean_sat = np.mean(hsv[:, :, 1])
     mean_val = np.mean(hsv[:, :, 2])
